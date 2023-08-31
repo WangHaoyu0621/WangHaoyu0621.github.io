@@ -1,0 +1,443 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Minecraft Java Server | NO.190325</title>
+<link rel="shortcut icon" href="https://190325.xyz/favicon.ico?v=1693449523094">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://190325.xyz/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="Minecraft Java Server | NO.190325 - Atom Feed" href="https://190325.xyz/atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="注：此处不考虑内网穿透，请确保有公网IPv4或去买VPS
+安装Ubuntu
+这里以Ubuntu20.04为例（docker部署见后文）
+本地服务器可参照硬件茶谈的装系统教程安装Ubuntu，如果你还没有划走，建议安装GUI版本（以下内容以远..." />
+    <meta name="keywords" content="" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://190325.xyz">
+  <img class="avatar" src="https://190325.xyz/images/avatar.png?v=1693449523094" alt="">
+  </a>
+  <h1 class="site-title">
+    NO.190325
+  </h1>
+  <p class="site-description">
+    温故而知新
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              Minecraft Java Server
+            </h2>
+            <div class="post-info">
+              <span>
+                2023-01-14
+              </span>
+              <span>
+                12 min read
+              </span>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content" v-pre>
+                <p>注：此处不考虑内网穿透，请确保有公网IPv4或去买VPS</p>
+<h2 id="安装ubuntu">安装Ubuntu</h2>
+<p>这里以Ubuntu20.04为例（docker部署见后文）<br>
+本地服务器可参照<a href="https://www.bilibili.com/video/BV1DJ411D79y">硬件茶谈</a>的装系统教程安装Ubuntu，如果你还没有划走，建议安装GUI版本（以下内容以远程命令行为示例，图形界面可打开终端进行操作，部分步骤直接使用图形界面会更方便）<br>
+云服务器直接选择对应镜像即可</p>
+<h2 id="开放防火墙">开放防火墙</h2>
+<p>本地服务器请正确配置端口转发，详见路由器后台<br>
+云服务器请配置安全组，在安全组规则内添加25565端口的TCP进出站（如变更端口则开启对应端口防火墙，但不要给mc使用:22等端口）</p>
+<h2 id="配置java">配置Java</h2>
+<p>1.18及以上安装JDK17<br>
+1.17官方要求Java16，但建议JDK17（未测试）<br>
+1.12（17w13a）至1.16.5（1.17：21w18a）需要Java 8启动游戏，但也建议使用更新版本Java</p>
+<p>如果遇到问题，请先运行<code>sudo apt update</code>以更新apt</p>
+<p>如果未安装Java，可以运行<code>java -version</code>以查看类似于以下内容，如已安装则会返回版本号：</p>
+<pre><code>sudo apt install default-jre              # version 2:1.11-72build1, or
+sudo apt install openjdk-11-jre-headless  # version 11.0.14+9-0ubuntu2
+sudo apt install openjdk-17-jre-headless  # version 17.0.2+8-1
+sudo apt install openjdk-18-jre-headless  # version 18~36ea-1
+sudo apt install openjdk-8-jre-headless   # version 8u312-b07-0ubuntu1
+</code></pre>
+<p>安装JDK8:<br>
+<code>sudo apt install openjdk-8-jdk</code><br>
+安装JDK11:<br>
+<code>sudo apt install openjdk-11-jdk</code><br>
+安装JDK17:<br>
+<code>sudo apt install openjdk-17-jdk</code></p>
+<p>通常情况下，安装新版本会更改默认Java为新版本，安装过程中可能需要输入<code>y</code>以继续<br>
+完成后通过<code>java -version</code>确认Java是否安装</p>
+<h2 id="安装minecraft">安装Minecraft</h2>
+<p>使用<code>pwd</code>查看当前工作目录以确保现在的工作目录在/root下，这是你当前账户目录（对于使用VPS的人来说通常为此种情况），如果不是以root账户登录，则一般为/home（一般来说也只要没有乱来此条不会出问题，此目录可用<code>~/</code>表示）<br>
+当然，也可以将mc文件存在其他文件夹中，例如将文件存在/home/Minecraft中，可以用<code>mkdir /home/Minecraft</code>新建文件夹，然后<code>cd /home/Minecraft</code>进入到该目录，进行后续操作</p>
+<p>可以参照https://www.minecraft.net/en-us/download/server 下载并启动最新版本Minecraft<br>
+如果你想查找先前版本，输入https://www.minecraft.net/en-us/article/minecraft-java-edition-1-18-1 到网址栏，其中1-18-1为版本号，您可以将其替换为1-16-5以查看1.16.5版本的下载链接(需要注意，1.12.2的release页面网址为https://www.minecraft.net/en-us/article/minecraft-1122-released，建议使用浏览器搜索对应版本的release页面并获取server.jar的下载链接)</p>
+<blockquote>
+<p>1.19.3:</p>
+<blockquote>
+<p>https://piston-data.mojang.com/v1/objects/c9df48efed58511cdd0213c56b9013a7b5c9ac1f/server.jar</p>
+</blockquote>
+<p>1.18.2:</p>
+<blockquote>
+<p>https://launcher.mojang.com/v1/objects/c8f83c5655308435b3dcf03c06d9fe8740a77469/server.jar</p>
+</blockquote>
+<p>1.18.1:</p>
+<blockquote>
+<p>https://launcher.mojang.com/v1/objects/125e5adf40c659fd3bce3e66e67a16bb49ecc1b9/server.jar</p>
+</blockquote>
+<p>1.16.5</p>
+<blockquote>
+<p>https://launcher.mojang.com/v1/objects/a16d67e5807f57fc4e550299cf20226194497dc2/server.jar</p>
+</blockquote>
+<p>1.14.3</p>
+<blockquote>
+<p>https://launcher.mojang.com/v1/objects/d0d0fe2b1dc6ab4c65554cb734270872b72dadd6/server.jar</p>
+</blockquote>
+<p>1.14.2</p>
+<blockquote>
+<p>https://launcher.mojang.com/v1/objects/808be3869e2ca6b62378f9f4b33c946621620019/server.jar</p>
+</blockquote>
+<p>1.13.1</p>
+<blockquote>
+<p>https://launcher.mojang.com/mc/game/1.13.1/server/fe123682e9cb30031eae351764f653500b7396c9/server.jar</p>
+</blockquote>
+<p>1.12.2</p>
+<blockquote>
+<p>https://launcher.mojang.com/mc/game/1.12.2/server/886945bfb2b978778c3a0288fd7fab09d315b25f/server.jar</p>
+</blockquote>
+</blockquote>
+<p>您可以使用以上链接或从release页面中找到“Minecraft server jar”并复制链接，然后将链接复制到以下命令后方<br>
+<code>sudo wget </code></p>
+<blockquote>
+<p>例子：<code>sudo wget https://launcher.mojang.com/v1/objects/a16d67e5807f57fc4e550299cf20226194497dc2/server.jar</code><br>
+此时应该能发现服务器开始下载server.jar文件，请确保当前目录中没有同名文件，否则要通过<code>mv</code>或其他命令更改文件名</p>
+</blockquote>
+<p>请时刻注意命令行上的内容与提示，可能会出现[y/n]以询问是否继续</p>
+<p>当文件下载完成后，可以通过<code>ls</code>命令查看当前目录下是否有server.jar文件出现，文件出现即可下一步。非从Microsoft下载的原版服务器可能需要解压缩，需要使用<code>unzip FileName.zip</code>命令解压，FilenName应当更改为下载文件的实际文件名，其他压缩包格式的解压方式见下</p>
+<blockquote>
+<p><code>tar xvf FileName.tar</code><br>
+<code>gunzip FileName.gz</code><br>
+<code>gzip -d FileName.gz</code><br>
+<code>tar zxvf FileName.tar.gz</code><br>
+<code>tar zxvf FileName.tgz</code><br>
+<code>rar x FileName.rar</code></p>
+</blockquote>
+<h2 id="同意eula">同意EULA</h2>
+<p>输入<code>sudo java -Xms1920m -Xmx3840m -jar server.jar nogui</code>来首次启动，此时会报错并要求同意eula.txt（“-Xms1920m”中的1920m为启动内存，可以与后者数值相等但不可更大；“-Xmx3840m”中的3840m为程序最大内存，单位都为MB，最大内存不能超过实例/服务器物理内存，如果只运行mc，建议为可用内存的80%）<br>
+输入<code>vi eula.txt</code>来打开eula文件，此时及之后的工作目录都应保持在刚刚保存server.jar的目录(文件夹内)<br>
+按i键启用编辑，用键盘上的上下左右键将光标移到“eula=false”后方，删去false并改为“true”，确认文件内容为“eula=true”(上方注释不要管)，此操作即代表您同意<a href="https://account.mojang.com/documents/minecraft_eula">Minecraft的许可协议</a>，然后按esc键退出编辑，并输入<code>:wq</code>来保存并退出（确认冒号为英文半角符号，控制台中输入的内容中一般不会包含中文及符号）</p>
+<h2 id="启动minecraft">启动Minecraft</h2>
+<p>运行<code>sudo java -Xms4096m -Xmx6144m -jar server.jar nogui</code>以启动mc，<strong>应当根据服务器规格更改此命令中的内存设置</strong>，初次启动时间较长，如出现 OOT错误（out of memory 内存溢出）应考虑增加内存或降低Xmx后的数值，应至少保障机器有4G以上内存，内存要求根据需要不同有所变化。<br>
+启动完成后输入/help来查看是否正常运行（当然可以直接尝试连接，服务器ip请查看实例ip或你家的公网ip，端口不是25565需在ip后增加端口，如127.0.0.1:1050）<br>
+输入<code>/stop</code>以停止，输入<code>/op uesrname</code>给予用户op权限<br>
+如果不想让mc服务占用命令行前台，可以使用<code>nohup java -Xms3840M -Xmx5760M -jar server.jar nogui</code>启动服务（应当先关闭现有的mc服务器）</p>
+<h2 id="上传本地地图更改世界地图">上传本地地图&amp;更改世界地图</h2>
+<h3 id="本地服务器">本地服务器</h3>
+<p>如果为本地服务器，可以通过插U盘然后运行<code>mv</code>命令将文件拷贝至mc目录下(noGUI，可能要<code>mnt</code>挂载u盘)，或直接拖拽复制/smb共享/云盘下载...(GUI)<br>
+然后更改level-name后的名称(world)为存档的文件夹名</p>
+<h3 id="云服务器">云服务器</h3>
+<p>如果为云服务器，推荐使用S3上传文件（即对象存储，阿里云叫OSS，腾讯云叫COS，华为云叫OBS），当然如果有其他服务器，也可用http等方式下载，此处不做介绍</p>
+<h4 id="阿里云创建bucket">阿里云创建Bucket</h4>
+<p><strong>阿里云的管理界面可能发生变动，请以<a href="https://help.aliyun.com/product/31815.html">官方教程</a>为准，不当操作会导致意外损失，请自行承担责任</strong></p>
+<p>以阿里云为例，打开<a href="https://oss.console.aliyun.com/overview">对象存储控制台</a>，点击左侧“Bucket列表”菜单，然后点击创建Bucket，自行填写名称(需与其他Bucket名称不同，注意要符合名称规范)，地域要选与服务器所在地相同(不同会比较烧钱)，其他可以保持默认</p>
+<h4 id="上传文件">上传文件</h4>
+<p>创建完成后点击Bucket名进入，在文件列表中上传文档文件夹（更推荐用客户端上传，在下方“常用工具与服务”选项卡中查看），上传完成后可以看到文件夹出现在文件列表中</p>
+<h4 id="accesskey">Accesskey</h4>
+<p>将光标移到右上角头像出，在弹出菜单中点击“Accesskey管理”，然后创建Accesskey，可能需要二步验证。请注意，在当前账号下有其他服务的情况下，应当采取妥善的安全措施。创建完成后请妥善保存Accesskey，如果secret遗失可以重新创建一个。请注意，AccessKey ID 和 AccessKey Secret 是您访问阿里云 API 的密钥，具有该账户完全的权限，请您妥善保管，被盗会造成严重损失。</p>
+<h4 id="服务器安装ossutil">服务器安装ossutil</h4>
+<h5 id="运行以下命令下载ossutil">运行以下命令下载ossutil</h5>
+<p><code>wget https://gosspublic.alicdn.com/ossutil/1.7.14/ossutil64</code></p>
+<h5 id="运行以下命令修改文件执行权限">运行以下命令修改文件执行权限。</h5>
+<p><code>chmod 755 ossutil64</code></p>
+<h5 id="输入配置命令">输入配置命令。</h5>
+<p><code>./ossutil64 config</code><br>
+然后直接按回车使用默认配置文件的路径。（默认为：/home/user/.ossutilconfig）</p>
+<h5 id="根据提示设置工具的语言">根据提示设置工具的语言。</h5>
+<p>请输入语言CH或EN。工具使用的语言默认与操作系统保持一致。该配置项将在此次config命令设置成功后生效。</p>
+<h5 id="根据提示分别设置endpoint-accesskey-id-accesskey-secret和ststoken参数">根据提示分别设置Endpoint、AccessKey ID、AccessKey Secret和STSToken参数</h5>
+<p>Endpoint：填写Bucket所在地域的Endpoint。关于各地域Endpoint的更多信息，请参见<a href="https://help.aliyun.com/document_detail/31837.htm?spm=a2c4g.11186623.0.0.80b62173DJaElH#concept-zt4-cvy-5db">访问域名和数据中心</a>。以北京的服务器和OSS为例，可填入<code>oss-cn-beijing-internal.aliyuncs.com</code><br>
+accessKeyID和accessKeySecret请分别填入刚刚创建的ID与Secret<br>
+stsToken一般情况不填</p>
+<h5 id="运行以下命令验证是否已成功安装ossutil">运行以下命令，验证是否已成功安装ossutil。</h5>
+<p><code>./ossutil64</code></p>
+<h4 id="用ossutil下载存档">用ossutil下载存档</h4>
+<p><code>./ossutil64 cp -r oss://examplebucket/destfolder/ localfolder_worldname/</code><br>
+将“examplebucket”改为创建的bucket名称，“destfolder”改为上传的存档文件夹名<br>
+注意，应当先在服务器mc目录下运行<code>mkdir localfolder_worldname/</code>创建存档文件夹，建议“localfolder_worldname”与上传的文件夹名“destfolder”一致，然后执行上方命令<br>
+运行<code>ls</code>，查看新增的存档文件夹，然后运行<code>vi server.properties</code>，按i键启用编辑，更改&quot;level-name=&quot;后的world为刚刚下载的存档文件夹名，然后按esc并输入<code>:wq</code>退出，重启服务器然后运行mc</p>
+<h2 id="serverproperties">server.properties</h2>
+<p>在储存Minecraft文件的文件夹内运行<code>vi server.properties</code>查看配置文件<br>
+可以看到如下内容：</p>
+<blockquote>
+<p>#Minecraft server properties<br>
+#[创建日期]<br>
+enable-jmx-monitoring=false<br>
+rcon.port=25575<br>
+level-seed=<br>
+gamemode=survival<br>
+enable-command-block=false<br>
+enable-query=false<br>
+generator-settings={}<br>
+level-name=world<br>
+motd=A Minecraft Server<br>
+query.port=25565<br>
+pvp=true<br>
+generate-structures=true<br>
+difficulty=easy<br>
+network-compression-threshold=256<br>
+max-tick-time=60000<br>
+require-resource-pack=false<br>
+use-native-transport=true<br>
+max-players=5<br>
+online-mode=false<br>
+enable-status=true<br>
+allow-flight=false<br>
+broadcast-rcon-to-ops=true<br>
+view-distance=10<br>
+server-ip=<br>
+resource-pack-prompt=<br>
+allow-nether=true<br>
+server-port=25565<br>
+enable-rcon=false<br>
+sync-chunk-writes=true<br>
+op-permission-level=4<br>
+prevent-proxy-connections=false<br>
+hide-online-players=false<br>
+resource-pack=<br>
+entity-broadcast-range-percentage=100<br>
+simulation-distance=10<br>
+rcon.password=<br>
+player-idle-timeout=0<br>
+force-gamemode=false<br>
+rate-limit=0<br>
+hardcore=false<br>
+white-list=false<br>
+broadcast-console-to-ops=true<br>
+spawn-npcs=true<br>
+spawn-animals=true<br>
+function-permission-level=2<br>
+level-type=default<br>
+text-filtering-config=<br>
+spawn-monsters=true<br>
+enforce-whitelist=false<br>
+resource-pack-sha1=<br>
+spawn-protection=16<br>
+max-world-size=29999984</p>
+</blockquote>
+<p>下面介绍几个常用项</p>
+<table>
+<thead>
+<tr>
+<th>变量名</th>
+<th>默认值</th>
+<th>注释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>level-seed</td>
+<td>[空]</td>
+<td>设定创建世界的种子号，要在初次载入前更改，如果已经生成名为“world”(level-name的变量值，此处为默认名)的存档文件夹，删除文件夹后会重新创建此种子世界，或更改“level-name”以创建另一存档。此值可以为空，为空时生成随机种子</td>
+</tr>
+<tr>
+<td>gamemode</td>
+<td>survival</td>
+<td>创建世界所用的默认游戏模式，新进入玩家会以此模式开始游戏，值必须为以下四项中的一个：(adventure|creative|survival)</td>
+</tr>
+<tr>
+<td>level-name</td>
+<td>world</td>
+<td>存档名，存档为当前文件夹内的同名文件夹</td>
+</tr>
+<tr>
+<td>pvp</td>
+<td>true</td>
+<td>允许玩家间伤害，需为布尔值</td>
+</tr>
+<tr>
+<td>difficulty</td>
+<td>easy</td>
+<td>游戏难度,值必须为以下四项中的一个单词或对应数字：peaceful (0)|easy (1)|normal (2)|hard (3)</td>
+</tr>
+<tr>
+<td>max-players</td>
+<td>20</td>
+<td>允许的最大在线玩家数</td>
+</tr>
+<tr>
+<td>server-port</td>
+<td>25565</td>
+<td>MC服务器端口，如更改请开放对应防火墙，和ip共同构成服务器地址</td>
+</tr>
+<tr>
+<td>level-type</td>
+<td>default</td>
+<td>默认即为minecraft:normal，也就是通常的游戏世界，改为minecraft:flat可生成超平坦</td>
+</tr>
+</tbody>
+</table>
+<p>更多可以参考https://minecraft.fandom.com/wiki/Server.properties</p>
+<p>未完待续...</p>
+<p>可以参看此教程：https://minecraft.fandom.com/wiki/Tutorials/Setting_up_a_server</p>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#%E5%AE%89%E8%A3%85ubuntu">安装Ubuntu</a></li>
+<li><a href="#%E5%BC%80%E6%94%BE%E9%98%B2%E7%81%AB%E5%A2%99">开放防火墙</a></li>
+<li><a href="#%E9%85%8D%E7%BD%AEjava">配置Java</a></li>
+<li><a href="#%E5%AE%89%E8%A3%85minecraft">安装Minecraft</a></li>
+<li><a href="#%E5%90%8C%E6%84%8Feula">同意EULA</a></li>
+<li><a href="#%E5%90%AF%E5%8A%A8minecraft">启动Minecraft</a></li>
+<li><a href="#%E4%B8%8A%E4%BC%A0%E6%9C%AC%E5%9C%B0%E5%9C%B0%E5%9B%BE%E6%9B%B4%E6%94%B9%E4%B8%96%E7%95%8C%E5%9C%B0%E5%9B%BE">上传本地地图&amp;更改世界地图</a>
+<ul>
+<li><a href="#%E6%9C%AC%E5%9C%B0%E6%9C%8D%E5%8A%A1%E5%99%A8">本地服务器</a></li>
+<li><a href="#%E4%BA%91%E6%9C%8D%E5%8A%A1%E5%99%A8">云服务器</a>
+<ul>
+<li><a href="#%E9%98%BF%E9%87%8C%E4%BA%91%E5%88%9B%E5%BB%BAbucket">阿里云创建Bucket</a></li>
+<li><a href="#%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6">上传文件</a></li>
+<li><a href="#accesskey">Accesskey</a></li>
+<li><a href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%AE%89%E8%A3%85ossutil">服务器安装ossutil</a>
+<ul>
+<li><a href="#%E8%BF%90%E8%A1%8C%E4%BB%A5%E4%B8%8B%E5%91%BD%E4%BB%A4%E4%B8%8B%E8%BD%BDossutil">运行以下命令下载ossutil</a></li>
+<li><a href="#%E8%BF%90%E8%A1%8C%E4%BB%A5%E4%B8%8B%E5%91%BD%E4%BB%A4%E4%BF%AE%E6%94%B9%E6%96%87%E4%BB%B6%E6%89%A7%E8%A1%8C%E6%9D%83%E9%99%90">运行以下命令修改文件执行权限。</a></li>
+<li><a href="#%E8%BE%93%E5%85%A5%E9%85%8D%E7%BD%AE%E5%91%BD%E4%BB%A4">输入配置命令。</a></li>
+<li><a href="#%E6%A0%B9%E6%8D%AE%E6%8F%90%E7%A4%BA%E8%AE%BE%E7%BD%AE%E5%B7%A5%E5%85%B7%E7%9A%84%E8%AF%AD%E8%A8%80">根据提示设置工具的语言。</a></li>
+<li><a href="#%E6%A0%B9%E6%8D%AE%E6%8F%90%E7%A4%BA%E5%88%86%E5%88%AB%E8%AE%BE%E7%BD%AEendpoint-accesskey-id-accesskey-secret%E5%92%8Cststoken%E5%8F%82%E6%95%B0">根据提示分别设置Endpoint、AccessKey ID、AccessKey Secret和STSToken参数</a></li>
+<li><a href="#%E8%BF%90%E8%A1%8C%E4%BB%A5%E4%B8%8B%E5%91%BD%E4%BB%A4%E9%AA%8C%E8%AF%81%E6%98%AF%E5%90%A6%E5%B7%B2%E6%88%90%E5%8A%9F%E5%AE%89%E8%A3%85ossutil">运行以下命令，验证是否已成功安装ossutil。</a></li>
+</ul>
+</li>
+<li><a href="#%E7%94%A8ossutil%E4%B8%8B%E8%BD%BD%E5%AD%98%E6%A1%A3">用ossutil下载存档</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#serverproperties">server.properties</a></li>
+</ul>
+</li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://190325.xyz/post/app-recommendation/">
+              <h3 class="post-title">
+                应用推荐 App recommendation
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  <a class="rss" href="https://190325.xyz/atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>
